@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>تحديد الموقع</title>
+</head>
+<body>
+  <h2>تحديد موقعك</h2>
+  <button onclick="getLocation()">اضغط هنا</button>
+  <p id="result"></p>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          document.getElementById("result").innerText = `Latitude: ${lat}, Longitude: ${lon}`;
+          // إرسال الموقع إلى سيرفرك
+          fetch(`https://location-bot.onrender.com/save?lat=${lat}&lon=${lon}`)
+            .then(response => response.text())
+            .then(data => console.log("تم الإرسال:", data));
+        }, () => {
+          alert("رفضت مشاركة الموقع.");
+        });
+      } else {
+        alert("المتصفح لا يدعم تحديد الموقع.");
+      }
+    }
+  </script>
+</body>
+</html>
